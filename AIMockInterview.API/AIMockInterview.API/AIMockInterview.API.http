@@ -1,0 +1,6 @@
+@AIMockInterview.API_HostAddress = http://localhost:5186
+
+GET {{AIMockInterview.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

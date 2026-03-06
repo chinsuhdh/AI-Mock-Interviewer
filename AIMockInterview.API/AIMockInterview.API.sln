@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36705.20 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIMockInterview.API", "AIMockInterview.API\AIMockInterview.API.csproj", "{C29FD47B-ABCF-410D-8933-155413883E3B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C29FD47B-ABCF-410D-8933-155413883E3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C29FD47B-ABCF-410D-8933-155413883E3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C29FD47B-ABCF-410D-8933-155413883E3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C29FD47B-ABCF-410D-8933-155413883E3B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {326381D0-A562-4537-AA14-51A23176C7FC}
+	EndGlobalSection
+EndGlobal

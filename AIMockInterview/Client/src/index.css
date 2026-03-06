@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* 1. Reset Root - Quan trọng nhất */
+  :root {
+    font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+    /* Dùng dvh để tránh lỗi thanh URL che mất giao diện trên mobile */
+    --app-height: 100dvh;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    min-width: 320px;
+    min-height: var(--app-height);
+    background-color: #ffffff;
+    /* Tránh bị hiện tượng kéo trang quá đà (rubber-banding) trên iOS */
+    overscroll-behavior-y: none; 
+  }
+
+  /* Xóa bỏ style mặc định của Vite gây lệch layout */
+  #root {
+    width: 100%;
+    margin: 0 auto;
+    text-align: left; /* Phải là left, nếu không chat box sẽ bị canh giữa hết */
+  }
+
+  /* 2. Fix lỗi tự động Zoom trên iPhone khi nhấn vào input/textarea */
+  @media screen and (max-width: 768px) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+  }
+}
+
+/* 3. Custom Scrollbar (Làm mỏng và tinh tế hơn) */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e5e7eb; /* màu neutral-200 */
+  border-radius: 20px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db; /* màu neutral-300 */
+}
+
+/* 4. Hiệu ứng Smooth Scroll cho các anchor link (#features, #process...) */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 5. Utility cho Shimmer Animation (Dùng cho các nút bấm) */
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
