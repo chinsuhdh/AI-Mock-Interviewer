@@ -81,11 +81,32 @@ const api = {
 
         // 4. MOCK: AUTH
         if (endpoint.startsWith('/Auth')) {
-            return new Promise((resolve) => {
-                setTimeout(() => resolve({ data: { message: 'Success', token: 'fake-token' } }), 500);
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const users = JSON.parse(localStorage.getItem('mock_users') || '[]');
+                    
+                    if (endpoint === '/Auth/register') {
+                        if (users.find(u => u.username === data.username)) {
+                            return reject({ response: { data: { error: 'Tài khoản đã tồn tại!' } } });
+                        }
+                        // Lưu user mới kèm fullName
+                        const newUser = { ...data, id: Date.now() };
+                        users.push(newUser);
+                        localStorage.setItem('mock_users', JSON.stringify(users));
+                        resolve({ data: { message: 'Success' } });
+                    } 
+                    else if (endpoint === '/Auth/login') {
+                        const user = users.find(u => u.username === data.username && u.password === data.password);
+                        if (user) {
+                            // Trả về fullName để UI hiển thị
+                            resolve({ data: { token: 'fake-token', userId: user.id, fullName: user.fullName || user.username } });
+                        } else {
+                            reject({ response: { data: { error: 'Sai tài khoản hoặc mật khẩu!' } } });
+                        }
+                    }
+                }, 500);
             });
         }
-
         throw new Error("Mock API endpoint not found: " + endpoint);
     }
 };
