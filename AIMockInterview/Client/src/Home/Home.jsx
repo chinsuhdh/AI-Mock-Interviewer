@@ -313,19 +313,33 @@ export default function Home() {
                     </div>
                     
                     {user ? (
-                        <div className="flex items-center gap-4">
-                            <span className="text-sm font-medium text-neutral-700 hidden sm:inline-block">Xin chào, <b>{user}</b> 👋</span>
+                        <div className="flex items-center gap-3 sm:gap-4">
+                            {/* Nút Avatar để vào Profile */}
+                            <button 
+                                onClick={() => navigate('/profile')}
+                                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 rounded-full transition-colors"
+                            >
+                                <div className="w-6 h-6 bg-amber-200 text-amber-700 font-bold rounded-full flex items-center justify-center text-xs">
+                                    {user.charAt(0).toUpperCase()}
+                                </div>
+                                <span className="text-sm font-bold text-neutral-700">{user}</span>
+                            </button>
+
+                            {/* Nút vào Dashboard */}
+                            <button 
+                                onClick={() => navigate('/dashboard')} 
+                                className="px-5 py-2 bg-neutral-900 text-white rounded-full font-bold text-sm shadow-md hover:bg-black transition-all flex items-center gap-2"
+                            >
+                                Dashboard
+                            </button>
+
+                            {/* Nút Đăng xuất (Chỉ giữ lại icon cho gọn trên mobile) */}
                             <button 
                                 onClick={handleLogout}
-                                className="px-4 py-2 text-sm bg-neutral-100 text-neutral-600 rounded-full font-bold hover:bg-red-50 hover:text-red-500 transition-all flex items-center gap-2"
+                                className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                                title="Đăng xuất"
                             >
-                                <LogOut size={16} /> <span className="hidden sm:inline">Đăng xuất</span>
-                            </button>
-                            <button 
-                                onClick={() => navigate('/interview')} 
-                                className="px-5 py-2 bg-amber-500 text-white rounded-full font-bold text-sm shadow-md hover:bg-amber-600 transition-all"
-                            >
-                                Vào App
+                                <LogOut size={20} /> 
                             </button>
                         </div>
                     ) : (
@@ -600,7 +614,7 @@ export default function Home() {
                                     </div>
 
                                     <button 
-                                        onClick={() => navigate('/auth')} 
+                                        onClick={() => navigate(user ? '/profile' : '/auth')} 
                                         className={`relative w-full py-4 rounded-xl font-bold text-lg transition-all transform active:scale-[0.98] overflow-hidden group/btn z-10 ${
                                             plan.highlight 
                                                 ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50' 

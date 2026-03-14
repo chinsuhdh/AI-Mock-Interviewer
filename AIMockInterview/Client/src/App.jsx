@@ -1,35 +1,42 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-// 1. Import đúng đường dẫn theo cấu trúc thư mục của bạn
 import Home from './Home/Home';
 import Auth from './Authentication/Auth';
 import Interview from './Interview/Interview';
 
-// 2. Component bảo vệ: Nếu chưa có Token thì đá về trang đăng nhập
+// --- IMPORT 2 FILE MỚI ---
+import Dashboard from './Dashboard/Dashboard';
+import Profile from './Profile/Profile';
+
 const PrivateRoute = ({ children }) => {
-    const token = localStorage.getItem('token');
-    return token ? children : <Navigate to="/auth" />;
+    // Check giả lập: Nếu có token hoặc có tên trong localStorage thì cho vào
+    const isLoggedIn = localStorage.getItem('token') || localStorage.getItem('fullName');
+    return isLoggedIn ? children : <Navigate to="/auth" />;
 };
 
 function App() {
     return (
         <BrowserRouter>
             <Routes>
-                {/* Trang chủ (Landing Page) */}
                 <Route path="/" element={<Home />} />
-                
-                {/* Trang Đăng nhập / Đăng ký */}
                 <Route path="/auth" element={<Auth />} />
 
-                {/* Trang Phỏng vấn (Phải đăng nhập mới vào được) */}
+                {/* Các trang yêu cầu đăng nhập */}
                 <Route 
                     path="/interview" 
-                    element={
-                        <PrivateRoute>
-                            <Interview />
-                        </PrivateRoute>
-                    } 
+                    element={<PrivateRoute><Interview /></PrivateRoute>} 
                 />
+                
+                {/* --- THÊM ROUTE CHO DASHBOARD VÀ PROFILE --- */}
+                <Route 
+                    path="/dashboard" 
+                    element={<PrivateRoute><Dashboard /></PrivateRoute>} 
+                />
+                <Route 
+                    path="/profile" 
+                    element={<PrivateRoute><Profile /></PrivateRoute>} 
+                />
+
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>
