@@ -5,7 +5,7 @@ import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import { 
     Bot, Zap, FileText, ArrowRight, Crown, Trophy, Target, 
     Play, Briefcase, Check, Star, Code2, Users, Globe, ChevronDown, 
-    ChevronUp, Facebook, Linkedin, Github, X, Mic, Send, Info, LogOut, Sparkles
+    ChevronUp, Facebook, Linkedin, Github, X, Mic, Send, Info, LogOut, Sparkles, Menu
 } from 'lucide-react';
 
 // --- 1. DATA CONFIGURATION (DỮ LIỆU) ---
@@ -131,24 +131,19 @@ const MarqueeColumn = ({ items, duration, reverse = false, className = "" }) => 
 const HeroBackgroundBlobs = () => (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,#fffaf0_0%,#fef7ec_40%,#faf6f3_80%,#f9f9f9_100%)]" />
-        {/* Blob 1: Chỉ animate opacity, dùng transform-gpu */}
         <motion.div
             animate={{ opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
             className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] bg-amber-200/50 rounded-full blur-[80px]"
             style={{ willChange: 'opacity', transform: 'translateZ(0)' }}
         />
-        {/* Blob 2: Tương tự, giảm blur */}
         <motion.div
             animate={{ opacity: [0.2, 0.5, 0.2] }}
             transition={{ duration: 12, repeat: Infinity, ease: "linear", delay: 1 }}
             className="absolute top-[20%] -right-[10%] w-[45vw] h-[45vw] bg-orange-100/50 rounded-full blur-[80px]"
             style={{ willChange: 'opacity', transform: 'translateZ(0)' }}
         />
-        {/* Lớp áo mờ nhẹ */}
         <div className="absolute inset-0 bg-white/30 backdrop-blur-[2px]" />
-        
-        {/* Gradient dưới cùng */}
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent to-[#0A0A0A] z-10" />
     </div>
 );
@@ -253,7 +248,6 @@ const AIRobotAssistant = () => {
                 )}
             </AnimatePresence>
             <motion.div id="bot-avatar-container" whileHover={{ scale: 1.1, rotate: 5 }} whileTap={{ scale: 0.9 }} onClick={() => { setIsOpen(!isOpen); setShowBubble(false); }} className="group relative w-16 h-16 md:w-20 md:h-20 cursor-pointer pointer-events-auto">
-                {/* [FIX] Tắt hiệu ứng pulse ánh sáng nền khi bảng chat đang mở để giảm tải */}
                 {!isOpen && (
                     <motion.div animate={{ opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} className="absolute inset-0 bg-amber-400 rounded-full blur-md opacity-40" style={{ willChange: "opacity" }} />
                 )}
@@ -271,6 +265,9 @@ const AIRobotAssistant = () => {
 export default function Home() {
     const navigate = useNavigate();
     const [openFaq, setOpenFaq] = useState(null);
+    // STATE CHO MOBILE MENU
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    
     const { scrollYProgress } = useScroll();
     const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
     const toggleFaq = (index) => setOpenFaq(openFaq === index ? null : index);
@@ -299,6 +296,66 @@ export default function Home() {
 
             <AIRobotAssistant />
 
+            {/* --- MOBILE DRAWER MENU --- */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-[101] lg:hidden"
+                        />
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className="fixed top-0 right-0 bottom-0 w-[280px] bg-white z-[102] shadow-2xl flex flex-col lg:hidden"
+                        >
+                            <div className="p-5 flex justify-between items-center border-b border-neutral-100">
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-neutral-900 p-1.5 rounded-lg text-amber-400"><Crown size={18} strokeWidth={3} /></div>
+                                    <span className="font-bold text-lg text-neutral-900">Menu</span>
+                                </div>
+                                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-full transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto py-6 px-5 flex flex-col gap-6">
+                                {['Quy trình', 'Tính năng', 'Bảng giá', 'FAQ'].map((item) => (
+                                    <a
+                                        key={item}
+                                        href={`#${item === 'Quy trình' ? 'process' : item === 'Tính năng' ? 'features' : item === 'Bảng giá' ? 'pricing' : 'faq'}`}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="text-lg font-bold text-neutral-700 hover:text-amber-600 transition-colors"
+                                    >
+                                        {item}
+                                    </a>
+                                ))}
+                                <div className="h-px bg-neutral-100 my-2" />
+                                {user ? (
+                                    <div className="flex flex-col gap-4">
+                                        <button onClick={() => { setIsMobileMenuOpen(false); navigate('/profile'); }} className="flex items-center gap-3 text-neutral-700 font-bold hover:text-amber-600 p-2 rounded-xl hover:bg-neutral-50 transition-colors">
+                                            <div className="w-10 h-10 bg-amber-200 text-amber-700 rounded-full flex items-center justify-center text-sm">{user.charAt(0).toUpperCase()}</div>
+                                            Hồ sơ của bạn
+                                        </button>
+                                        <button onClick={() => { setIsMobileMenuOpen(false); navigate('/dashboard'); }} className="w-full py-3 bg-neutral-900 text-white rounded-xl font-bold hover:bg-black transition-colors">Dashboard</button>
+                                        <button onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }} className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"><LogOut size={18}/> Đăng xuất</button>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-4">
+                                        <button onClick={() => { setIsMobileMenuOpen(false); navigate('/auth'); }} className="w-full py-3 text-neutral-900 bg-neutral-100 hover:bg-neutral-200 rounded-xl font-bold transition-colors">Đăng nhập</button>
+                                        <button onClick={() => { setIsMobileMenuOpen(false); navigate('/auth'); }} className="w-full py-3 bg-neutral-900 text-white hover:bg-black rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">Bắt đầu ngay <ArrowRight size={16}/></button>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
             {/* --- HEADER --- */}
             <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-lg border-b border-neutral-100/50 transition-all duration-300 transform-gpu">
                 <div className="max-w-[95%] mx-auto px-4 h-20 flex justify-between items-center">
@@ -306,48 +363,56 @@ export default function Home() {
                         <div className="bg-neutral-900 p-2 rounded-xl text-amber-400 shadow-lg"><Crown size={24} strokeWidth={3} /></div>
                         <span className="text-xl font-bold tracking-tight text-neutral-900">AI Interviewer<span className="text-amber-500">.</span></span>
                     </div>
+                    
+                    {/* Desktop Menu */}
                     <div className="hidden lg:flex items-center gap-10 text-base font-semibold text-neutral-500">
                         {['Quy trình', 'Tính năng', 'Bảng giá', 'FAQ'].map((item) => (
                             <a key={item} href={`#${item === 'Quy trình' ? 'process' : item === 'Tính năng' ? 'features' : item === 'Bảng giá' ? 'pricing' : 'faq'}`} className="hover:text-amber-600 transition-colors">{item}</a>
                         ))}
                     </div>
                     
-                    {user ? (
-                        <div className="flex items-center gap-3 sm:gap-4">
-                            {/* Nút Avatar để vào Profile */}
-                            <button 
-                                onClick={() => navigate('/profile')}
-                                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 rounded-full transition-colors"
-                            >
-                                <div className="w-6 h-6 bg-amber-200 text-amber-700 font-bold rounded-full flex items-center justify-center text-xs">
-                                    {user.charAt(0).toUpperCase()}
-                                </div>
-                                <span className="text-sm font-bold text-neutral-700">{user}</span>
-                            </button>
+                    <div className="flex items-center gap-2">
+                        {/* User Actions */}
+                        {user ? (
+                            <div className="hidden lg:flex items-center gap-3 sm:gap-4">
+                                <button 
+                                    onClick={() => navigate('/profile')}
+                                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 rounded-full transition-colors"
+                                >
+                                    <div className="w-6 h-6 bg-amber-200 text-amber-700 font-bold rounded-full flex items-center justify-center text-xs">
+                                        {user.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span className="text-sm font-bold text-neutral-700">{user}</span>
+                                </button>
+                                <button 
+                                    onClick={() => navigate('/dashboard')} 
+                                    className="px-5 py-2 bg-neutral-900 text-white rounded-full font-bold text-sm shadow-md hover:bg-black transition-all flex items-center gap-2"
+                                >
+                                    Dashboard
+                                </button>
+                                <button 
+                                    onClick={handleLogout}
+                                    className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                                    title="Đăng xuất"
+                                >
+                                    <LogOut size={20} /> 
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="hidden lg:flex items-center gap-4">
+                                <button onClick={() => navigate('/auth')} className="text-neutral-600 font-bold hover:text-neutral-900 text-base px-2">Đăng nhập</button>
+                                <button onClick={() => navigate('/auth')} className="px-6 py-3 bg-neutral-900 text-white rounded-full font-bold text-sm shadow-xl flex items-center gap-2 hover:bg-black transition-colors">Bắt đầu ngay <ArrowRight size={16}/></button>
+                            </div>
+                        )}
 
-                            {/* Nút vào Dashboard */}
-                            <button 
-                                onClick={() => navigate('/dashboard')} 
-                                className="px-5 py-2 bg-neutral-900 text-white rounded-full font-bold text-sm shadow-md hover:bg-black transition-all flex items-center gap-2"
-                            >
-                                Dashboard
-                            </button>
-
-                            {/* Nút Đăng xuất (Chỉ giữ lại icon cho gọn trên mobile) */}
-                            <button 
-                                onClick={handleLogout}
-                                className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
-                                title="Đăng xuất"
-                            >
-                                <LogOut size={20} /> 
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-4">
-                            <button onClick={() => navigate('/auth')} className="hidden sm:block text-neutral-600 font-bold hover:text-neutral-900 text-base px-2">Đăng nhập</button>
-                            <button onClick={() => navigate('/auth')} className="px-6 py-3 bg-neutral-900 text-white rounded-full font-bold text-sm shadow-xl flex items-center gap-2">Bắt đầu ngay <ArrowRight size={16}/></button>
-                        </div>
-                    )}
+                        {/* Hamburger Button for Mobile */}
+                        <button 
+                            className="lg:hidden p-2 text-neutral-600 hover:bg-neutral-100 rounded-full transition-colors ml-2"
+                            onClick={() => setIsMobileMenuOpen(true)}
+                        >
+                            <Menu size={26} />
+                        </button>
+                    </div>
                 </div>
             </nav>
 
@@ -418,14 +483,15 @@ export default function Home() {
                 </div>
                 
                 <motion.div 
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute bottom-10 left-1/2 -translate-x-1/2 text-neutral-400 flex flex-col items-center gap-2 cursor-pointer hover:text-amber-500 transition-colors z-20"
-                    onClick={() => document.getElementById('problem').scrollIntoView({ behavior: 'smooth' })}
-                >
-                    <span className="text-xs font-bold uppercase tracking-[0.2em]">Khám phá tính năng</span>
-                    <ChevronDown size={24} />
-                </motion.div>
+    animate={{ y: [0, 10, 0] }}
+    transition={{ duration: 2, repeat: Infinity }}
+    // Thêm hidden md:flex vào dòng className bên dưới
+    className="hidden md:flex absolute bottom-10 left-1/2 -translate-x-1/2 text-neutral-400 flex-col items-center gap-2 cursor-pointer hover:text-amber-500 transition-colors z-20"
+    onClick={() => document.getElementById('problem').scrollIntoView({ behavior: 'smooth' })}
+>
+    <span className="text-xs font-bold uppercase tracking-[0.2em]">Khám phá tính năng</span>
+    <ChevronDown size={24} />
+</motion.div>
             </section>
 
             {/* --- PROBLEM SECTION --- */}
@@ -706,7 +772,7 @@ export default function Home() {
                                 <span className="text-xl font-black text-white">AI Interviewer.</span>
                             </div>
                             <p className="text-sm leading-relaxed mb-6 opacity-80">
-                                Nền tảng luyện phỏng vấn AI hàng đầu Việt Nam. Giúp sinh viên tự tin chinh phục mọi nhà tuyển dụng.
+                                Nền tảng luyện phỏng vấn AI hàng đầu Việt Nam. Giúp sinh viên tự tự tin chinh phục mọi nhà tuyển dụng.
                             </p>
                             <div className="flex gap-4">
                                 <div className="p-2 bg-neutral-900 rounded-full hover:bg-neutral-800 hover:text-blue-500 cursor-pointer transition-colors"><Facebook size={18} /></div>
