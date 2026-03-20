@@ -200,7 +200,13 @@ export default function Auth() {
                 localStorage.setItem('userId', res.data.userId);
                 localStorage.setItem('fullName', res.data.fullName);
 
-                navigate('/');
+                if (formData.username === 'admin') {
+        localStorage.setItem('role', 'admin');
+        navigate('/admin'); // Sang thẳng Admin Dashboard
+    } else {
+        localStorage.setItem('role', 'user');
+        navigate('/');
+    }
             } else {
                 await api.post('/Auth/register', {
                     username: formData.username,

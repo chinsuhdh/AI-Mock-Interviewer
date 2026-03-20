@@ -46,7 +46,7 @@ const problems = [
 
 const pricingPlans = [
     {
-        name: "Starter",
+        name: "Basic",
         price: "0đ",
         desc: "Bắt đầu hành trình của bạn",
         features: ["3 lượt phỏng vấn / tháng", "Feedback cơ bản", "Hỗ trợ Tiếng Việt", "1 Profile CV"],
@@ -570,12 +570,7 @@ export default function Home() {
                                             Rất tốt. Vậy điểm mạnh lớn nhất của bạn là gì?
                                         </div>
                                     </div>
-                                </div>
-                                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity duration-500">
-                                    <button className="bg-neutral-900 text-white px-8 py-3 rounded-full font-bold shadow-xl transform scale-100 hover:scale-105 transition-transform flex items-center gap-2">
-                                        <Play size={18} fill="currentColor"/> Xem Demo Live
-                                    </button>
-                                </div>
+                                </div>                             
                             </div>
                         </div>
                     </FadeIn>

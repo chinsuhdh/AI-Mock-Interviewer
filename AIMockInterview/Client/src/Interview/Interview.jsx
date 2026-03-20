@@ -3,11 +3,10 @@ import api from '../api';
 import { 
     Send, Bot, User, Upload, Mic, 
     MessageSquare, Volume2, StopCircle, Loader2, CheckCircle2, ChevronRight,
-    ArrowLeft, Sparkles, X, Crown, FileText, Zap
+    ArrowLeft, Sparkles, X, Crown, FileText, Zap, Lock, Cpu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- Improved Progress Indicator ---
 const StepIndicator = ({ step, language }) => {
     const steps = [
         { id: 1, label: language === 'en' ? 'Setup JD' : 'Thiết lập JD' },
@@ -18,9 +17,7 @@ const StepIndicator = ({ step, language }) => {
     return (
         <div className="flex justify-center mb-10 w-full max-w-md mx-auto">
             <div className="flex items-center justify-between w-full relative">
-                {/* Background line */}
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[2px] bg-neutral-200 z-0 rounded-full"></div>
-                {/* Active progress line */}
                 <motion.div 
                     className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-amber-400 to-amber-500 z-0 rounded-full"
                     initial={{ width: '0%' }}
@@ -58,10 +55,10 @@ const StepIndicator = ({ step, language }) => {
 };
 
 export default function Interview() {
-    // --- EXISTING LOGIC STARTS HERE (DO NOT MODIFY) ---
     const [step, setStep] = useState(1); 
     const [mode, setMode] = useState('chat'); 
     const [language, setLanguage] = useState('vi'); 
+    const [selectedModel, setSelectedModel] = useState('gemini');
 
     const [jdText, setJdText] = useState('');
     const [sessionId, setSessionId] = useState(null);
@@ -151,7 +148,8 @@ export default function Interview() {
         try {
             const res = await api.post(`/Interview/start`, { 
                 jobDescription: jdText,
-                language: language 
+                language: language,
+                model: selectedModel
             });
             
             setSessionId(res.data.sessionId);
@@ -259,6 +257,7 @@ export default function Interview() {
                 userMessage: text,
                 jobDescription: jdText,
                 language: language,
+                model: selectedModel,
                 history: messages.map(m => `${m.sender}: ${m.content}`)
             });
 
@@ -291,7 +290,8 @@ export default function Interview() {
             const res = await api.post('/Interview/get-hint', {
                 sessionId: sessionId,
                 currentQuestion: lastAiMsg.content,
-                jobDescription: jdText
+                jobDescription: jdText,
+                model: selectedModel
             });
             
             const hintData = res.data;
@@ -311,16 +311,11 @@ export default function Interview() {
         }
         setLoadingHint(false);
     };
-    // --- EXISTING LOGIC ENDS HERE ---
 
-    // ==========================================
-    // STEP 1: UI REDESIGN (SETUP JD)
-    // ==========================================
     if (step === 1) {
         return (
             <div className="min-h-screen bg-[#F9FAFB] flex flex-col p-6 font-sans text-neutral-900 selection:bg-amber-100 relative">
                 <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col justify-center">
-                    {/* Back Button */}
                     <div className="absolute top-6 left-6 z-10">
                         <button onClick={() => window.location.href = '/'} className="group flex items-center gap-2 text-neutral-500 hover:text-neutral-900 transition-all font-medium px-4 py-2 rounded-xl hover:bg-neutral-100">
                             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
@@ -353,7 +348,6 @@ export default function Interview() {
                                 </div>
                             </div>
                             
-                            {/* iOS Style Language Switch */}
                             <div className="bg-neutral-100/80 p-1 rounded-xl flex relative shrink-0">
                                 <motion.div 
                                     className="absolute top-1 bottom-1 bg-white rounded-lg shadow-sm" 
@@ -370,7 +364,6 @@ export default function Interview() {
                         </div>
 
                         <div className="space-y-5">
-                            {/* Drag & Drop Upload Area */}
                             <label className="group relative flex flex-col items-center justify-center cursor-pointer border-2 border-dashed border-neutral-200 hover:border-amber-400 hover:bg-amber-50/30 rounded-2xl p-8 transition-all duration-200">
                                 <div className="w-14 h-14 mb-4 bg-white shadow-sm border border-neutral-100 rounded-full flex items-center justify-center text-neutral-600 group-hover:text-amber-500 group-hover:scale-110 transition-all duration-300">
                                     {loading ? <Loader2 className="animate-spin text-amber-500" size={24}/> : <FileText size={24} />}
@@ -391,23 +384,68 @@ export default function Interview() {
                                 <input type="file" className="hidden" accept=".txt" onChange={handleFileUpload} disabled={loading} />
                             </label>
 
-                            {/* Divider */}
                             <div className="flex items-center gap-4 py-2">
                                 <div className="h-px bg-neutral-200 flex-1"></div>
                                 <span className="text-neutral-400 text-xs font-bold uppercase tracking-wider">{language === 'en' ? 'Or paste below' : 'Hoặc dán vào dưới đây'}</span>
                                 <div className="h-px bg-neutral-200 flex-1"></div>
                             </div>
 
-                            {/* Large JD Textarea */}
                             <textarea 
                                 className="w-full h-48 p-5 border border-neutral-200 rounded-2xl outline-none bg-[#FAFAFA] hover:bg-white focus:bg-white focus:ring-4 focus:ring-amber-500/10 focus:border-amber-400 transition-all text-sm font-medium text-neutral-800 resize-none shadow-inner"
                                 placeholder={language === 'en' ? 'Paste the full Job Description here...' : 'Dán toàn bộ nội dung Mô tả công việc (Job Description) vào đây...'}
                                 value={jdText}
                                 onChange={e => setJdText(e.target.value)}
                             />
+
+                            <div className="mt-6 pt-6 border-t border-neutral-100">
+                                <h3 className="text-sm font-bold text-neutral-900 mb-3 flex items-center gap-2">
+                                    <Cpu size={16} className="text-amber-500" />
+                                    {language === 'en' ? 'Select AI Interviewer Model' : 'Chọn Model AI Phỏng vấn'}
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div 
+                                        onClick={() => setSelectedModel('gemini')}
+                                        className={`relative flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${selectedModel === 'gemini' ? 'border-amber-500 bg-amber-50/50' : 'border-neutral-200 hover:border-amber-200 bg-white'}`}
+                                    >
+                                        <div className="flex-1">
+                                            <p className="font-bold text-neutral-900 text-sm">Google Gemini</p>
+                                            <p className="text-xs text-neutral-500 mt-0.5">{language === 'en' ? 'Standard & Fast (Free)' : 'Tiêu chuẩn & Tốc độ cao'}</p>
+                                        </div>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedModel === 'gemini' ? 'border-amber-500' : 'border-neutral-300'}`}>
+                                            {selectedModel === 'gemini' && <div className="w-2.5 h-2.5 bg-amber-500 rounded-full"></div>}
+                                        </div>
+                                    </div>
+
+                                    <div 
+                                        onClick={() => {
+                                            if (userPlan === 'pro') {
+                                                setSelectedModel('gpt4');
+                                            } else {
+                                                alert(language === 'en' ? "Please upgrade to Pro plan to use GPT-4o!" : "Vui lòng nâng cấp gói Pro để sử dụng GPT-4o!");
+                                            }
+                                        }}
+                                        className={`relative flex items-center p-4 border-2 rounded-xl transition-all duration-200 ${userPlan !== 'pro' ? 'opacity-60 bg-neutral-50 cursor-not-allowed border-neutral-200' : selectedModel === 'gpt4' ? 'border-blue-500 bg-blue-50/50 cursor-pointer' : 'border-neutral-200 hover:border-blue-200 bg-white cursor-pointer'}`}
+                                    >
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <p className="font-bold text-neutral-900 text-sm">GPT-4o / Claude</p>
+                                                {userPlan !== 'pro' && <Lock size={12} className="text-neutral-500" />}
+                                            </div>
+                                            <p className="text-xs text-neutral-500 mt-0.5">{language === 'en' ? 'High Intelligence & Deep reasoning' : 'Thông minh & Suy luận sâu sắc'}</p>
+                                        </div>
+                                        {userPlan === 'pro' && (
+                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedModel === 'gpt4' ? 'border-blue-500' : 'border-neutral-300'}`}>
+                                                {selectedModel === 'gpt4' && <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>}
+                                            </div>
+                                        )}
+                                        {userPlan !== 'pro' && (
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-100 px-2 py-1 rounded border border-amber-200">Pro Only</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Primary Action Button */}
                         <motion.button 
                             whileHover={{ y: -2 }}
                             whileTap={{ scale: 0.98 }} 
@@ -428,13 +466,9 @@ export default function Interview() {
         );
     }
 
-    // ==========================================
-    // STEP 2: UI REDESIGN (MODE SELECTION)
-    // ==========================================
     if (step === 2) {
         return (
             <div className="min-h-screen bg-[#F9FAFB] flex flex-col justify-center items-center p-6 relative overflow-hidden">
-                {/* Subtle background glow */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
                 <div className="w-full max-w-4xl z-10">
@@ -454,7 +488,6 @@ export default function Interview() {
                         animate={{ opacity: 1, y: 0 }} 
                         className="grid md:grid-cols-2 gap-6 md:gap-8"
                     >
-                        {/* Chat Card */}
                         <motion.div 
                             whileHover={{ y: -6 }}
                             onClick={() => { setMode('chat'); setStep(3); }} 
@@ -489,7 +522,6 @@ export default function Interview() {
                             </div>
                         </motion.div>
 
-                        {/* Voice Card */}
                         <motion.div 
                             whileHover={{ y: -6 }}
                             onClick={() => { 
@@ -500,7 +532,6 @@ export default function Interview() {
                             }} 
                             className="group relative bg-gradient-to-b from-neutral-900 to-[#1a1a1a] p-8 md:p-10 rounded-[2.5rem] border border-neutral-800 cursor-pointer hover:border-amber-500/50 hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.2)] transition-all duration-300 overflow-hidden"
                         >
-                            {/* Decorative background gradients for dark card */}
                             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[80px] group-hover:bg-amber-500/20 transition-colors pointer-events-none"></div>
 
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -540,12 +571,8 @@ export default function Interview() {
         );
     }
 
-    // ==========================================
-    // STEP 3: UI REDESIGN (INTERVIEW INTERFACE)
-    // ==========================================
     return (
         <div className="flex flex-col h-screen bg-[#FAFAFA] font-sans selection:bg-amber-100">
-            {/* Header */}
             <header className="bg-white/80 backdrop-blur-xl px-4 md:px-8 py-4 border-b border-neutral-200/60 flex items-center justify-between sticky top-0 z-30 shadow-sm">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center text-white shadow-sm">
@@ -570,11 +597,9 @@ export default function Interview() {
                 </button>
             </header>
 
-            {/* Main Chat Area */}
             <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 scroll-smooth">
                 <div className="max-w-3xl mx-auto space-y-8">
                     
-                    {/* Floating Voice Panel (if mode === voice) */}
                     <AnimatePresence>
                         {mode === 'voice' && (
                             <motion.div 
@@ -612,7 +637,6 @@ export default function Interview() {
                         )}
                     </AnimatePresence>
 
-                    {/* Chat Messages */}
                     {messages.map((msg, idx) => (
                         <motion.div 
                             initial={{ opacity: 0, y: 15 }}
@@ -623,12 +647,10 @@ export default function Interview() {
                         >
                             <div className={`flex gap-3 md:gap-4 max-w-[85%] md:max-w-[75%] ${msg.sender === 'User' ? 'flex-row-reverse' : 'flex-row'}`}>
                                 
-                                {/* Avatar */}
                                 <div className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-white mt-1 shadow-sm ${msg.sender === 'User' ? 'bg-neutral-800' : 'bg-gradient-to-br from-amber-400 to-orange-500'}`}>
                                     {msg.sender === 'User' ? <User size={16} /> : <Bot size={18} />}
                                 </div>
                                 
-                                {/* Bubble */}
                                 <div className="flex flex-col gap-2">
                                     <div className={`px-5 py-3.5 text-[15px] leading-relaxed shadow-sm ${
                                         msg.sender === 'User' 
@@ -638,7 +660,6 @@ export default function Interview() {
                                         {msg.content}
                                     </div>
 
-                                    {/* Feedback Tag attached below AI message */}
                                     {msg.feedback && (
                                         <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay: 0.2}} className="bg-amber-50 border border-amber-200/60 rounded-xl px-4 py-3 text-sm text-amber-900 self-start max-w-full">
                                             <div className="flex items-center gap-1.5 mb-1 font-bold text-amber-700 text-xs uppercase tracking-wider">
@@ -652,7 +673,6 @@ export default function Interview() {
                         </motion.div>
                     ))}
 
-                    {/* Typing Indicator */}
                     {loading && (
                         <motion.div initial={{opacity:0}} animate={{opacity:1}} className="flex justify-start">
                             <div className="flex gap-4 max-w-[75%] flex-row">
@@ -671,11 +691,9 @@ export default function Interview() {
                 </div>
             </div>
 
-            {/* Input Area */}
             <div className="bg-white border-t border-neutral-200 p-4 md:p-6 pb-6 relative z-10">
                 <div className="max-w-3xl mx-auto flex flex-col gap-3 relative">
                     
-                    {/* Floating Hint Alert */}
                     <AnimatePresence>
                         {hint && (
                             <motion.div 
@@ -700,7 +718,6 @@ export default function Interview() {
                         )}
                     </AnimatePresence>
 
-                    {/* Input Container */}
                     <div className="flex items-end gap-2 bg-neutral-100 p-2 border border-transparent focus-within:bg-white focus-within:border-neutral-300 focus-within:shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-[2rem] transition-all duration-300 relative">
                         <textarea 
                             id="chat-input" 
